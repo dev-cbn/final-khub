@@ -5,7 +5,7 @@ import hero from './assets/hero.jpg';
 
 const roles = ['Buyer', 'Seller', 'Provider', 'Driver', 'Job poster'];
 
-export default function AccountPage({ onHome = () => {} }) {
+export default function AccountPage({ onHome = () => {}, onAccountCreated = () => {} }) {
   const [view, setView] = useState('signin');
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -43,6 +43,7 @@ export default function AccountPage({ onHome = () => {} }) {
     } else if (view === 'verify') {
       if (code.some((digit) => !digit)) return setError('Enter all 6 digits of the verification code.');
       setMessage('Demo code accepted. Your number is verified in this preview.');
+      onAccountCreated({ name: name.trim() || 'KHUB customer', email: email.trim(), phone: phone.trim(), role });
     } else if (view === 'forgot') {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError('Enter a complete email address, such as name@example.com.');
       setMessage('If an account matches this address, a reset link would be sent. No email was sent by this demo.');

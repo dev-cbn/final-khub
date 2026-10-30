@@ -11,10 +11,18 @@ import rental from './assets/rental.jpg';
 import service from './assets/service.jpg';
 import DiscoverPage from './DiscoverPage.jsx';
 import AccountPage from './AccountPage.jsx';
-import ShopPage from './ShopPage.jsx';
-import RentalsPage from './RentalsPage.jsx';
+import PersonalSettingsPage from './PersonalSettingsPage.jsx';
+import SupportPage from './SupportPage.jsx';
+import NotificationsPage from './NotificationsPage.jsx';
+import OrdersPage from './OrdersPage.jsx';
+import OrdersBookingsPage from './OrdersBookingsPage.jsx';
+import ReferralsPage from './ReferralsPage.jsx';
+import ChatPage from './ChatPage.jsx';
+import CustomerDashboard from './CustomerDashboard.jsx';
+import DriverDashboard from './DriverDashboard.jsx';
+import ServiceProviderDashboard from './ServiceProviderDashboard.jsx';
+import SellerDashboard from './SellerDashboard.jsx';
 import SiteHeader from './SiteHeader.jsx';
-import ServicesPage from './ServicesPage.jsx';
 
 const products = [
   {id:1,name:'The Lekki lounge chair',category:'Advertised · Lekki, Lagos · New',seller:'Verified seller',price:'₦145,000',image:chair,kind:'Shop'},
@@ -29,6 +37,7 @@ const categories = [
 ];
 function App(){
   const [page, setPage] = useState('home');
+  const [currentUser, setCurrentUser] = useState({ name: 'Tomi Adeyemi', email: 'tomi.adeyemi@example.com', phone: '+234 803 000 1428', role: 'Buyer' });
   const [saved,setSaved]=useState([]);
   const [activeCategory,setActiveCategory]=useState('All');
   const [search,setSearch]=useState('');
@@ -43,75 +52,66 @@ function App(){
  const toggleSaved=(id)=>setSaved(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]);
  const onSubmit=(e)=>{e.preventDefault();setSubmitted(true)};
 
- // Render Discover only after all hooks have been called.
- // Render pages only after all hooks have been called.
-const navigate = (destination) => {
-  if (destination === 'home') {
-    setPage('home');
-    setMobileMenu(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-  if (['discover', 'shop', 'rentals', 'services', 'account'].includes(destination))  {
-    setPage(destination);
-    setMobileMenu(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-  setMobileMenu(false);
-  if (page !== 'home') {
-    setPage('home');
-    window.setTimeout(() => document.getElementById(destination)?.scrollIntoView({ behavior: 'smooth' }), 80);
-  } else {
-    goTo(destination);
-  }
-};
-const handleList = () => {
-  setPage('home');
-  openModal('List on KHUB', 'Tell us what you want to list and we’ll help you get started.', 'Start listing');
-};
-
-if (page === 'discover') {
-  return <div className={styles.app}>
-    <SiteHeader page={page} onNavigate={navigate} onList={handleList} />
-    <DiscoverPage onHome={() => navigate('home')} onAccount={() => navigate('account')} />
-  </div>;
-}
-if (page === 'shop') {
-  return <div className={styles.app}>
-    <SiteHeader page={page} onNavigate={navigate} onList={handleList} />
-    <ShopPage onHome={() => navigate('home')} onRent={() => navigate('rentals')} />
-  </div>;
-}
-if (page === 'rentals') {
-  return <div className={styles.app}>
-    <SiteHeader page={page} onNavigate={navigate} onList={handleList} />
-    <RentalsPage onHome={() => navigate('home')} onShop={() => navigate('shop')} />
-  </div>;
-}
-
-if (page === 'services') {
-  return (
-    <div className={styles.app}>
-      <SiteHeader
-        page={page}
-        onNavigate={navigate}
-        onList={handleList}
-      />
-      <ServicesPage />
-    </div>
-  );
-}
-
-if (page === 'account') {
-  return <div className={styles.app}>
-    <SiteHeader page={page} onNavigate={navigate} onList={handleList} />
-    <AccountPage onHome={() => navigate('home')} />
-  </div>;
-}
-
+ const navigate = (destination) => {
+   setMobileMenu(false);
+   if (destination === 'home') {
+     setPage('home');
+     window.scrollTo({ top: 0, behavior: 'smooth' });
+     return;
+   }
+   if (destination === 'discover' || destination === 'account' || destination === 'settings' || destination === 'dashboard' || destination === 'driver-dashboard' || destination === 'provider-dashboard' || destination === 'seller-dashboard' || destination === 'support' || destination === 'notifications' || destination === 'orders' || destination === 'orders-bookings' || destination === 'referrals' || destination === 'messages') {
+     setPage(destination);
+     window.scrollTo({ top: 0, behavior: 'smooth' });
+     return;
+   }
+   const sectionByDestination = {
+     shop: 'finds',
+     rentals: 'rent',
+     services: 'services',
+     jobs: 'jobs',
+     city: 'city',
+   };
+   const sectionId = sectionByDestination[destination];
+   if (sectionId) {
+     if (page !== 'home') {
+       setPage('home');
+       window.setTimeout(() => document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' }), 100);
+     } else {
+       document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+     }
+   }
+ };
+ const handleList = () => {
+   if (page !== 'home') setPage('home');
+   openModal('List on KHUB', 'Tell us what you want to list and we’ll help you get started.', 'Start listing');
+ };
  return <div className={styles.app}>
-  <SiteHeader page={page} onNavigate={navigate} onList={handleList} />
+  {page !== 'driver-dashboard' && page !== 'provider-dashboard' && page !== 'seller-dashboard' && page !== 'settings' && page !== 'support' && page !== 'notifications' && page !== 'orders' && page !== 'orders-bookings' && page !== 'referrals' && page !== 'messages' && <SiteHeader page={page} onNavigate={navigate} onList={handleList} />}
+  {page === 'discover' ? (
+    <DiscoverPage onHome={() => navigate('home')} onAccount={() => navigate('account')} />
+  ) : page === 'account' ? (
+    <AccountPage onHome={() => navigate('home')} onAccountCreated={(user) => { if (user) setCurrentUser(user); navigate(user?.role === 'Driver' ? 'driver-dashboard' : user?.role === 'Provider' ? 'provider-dashboard' : user?.role === 'Seller' ? 'seller-dashboard' : 'dashboard'); }} />
+  ) : page === 'dashboard' ? (
+    <CustomerDashboard user={currentUser} onNavigate={navigate} />
+  ) : page === 'driver-dashboard' ? (
+    <DriverDashboard user={currentUser} onNavigate={navigate} />
+  ) : page === 'provider-dashboard' ? (
+    <ServiceProviderDashboard user={currentUser} onNavigate={navigate} />
+  ) : page === 'seller-dashboard' ? (
+    <SellerDashboard user={currentUser} onNavigate={navigate} />
+  ) : page === 'settings' ? (
+    <PersonalSettingsPage user={currentUser} onBack={() => navigate('dashboard')} />
+  ) : page === 'support' ? (
+    <SupportPage user={currentUser} onBack={() => navigate(currentUser?.role === 'Driver' ? 'driver-dashboard' : currentUser?.role === 'Provider' ? 'provider-dashboard' : currentUser?.role === 'Seller' ? 'seller-dashboard' : 'dashboard')} />
+  ) : page === 'notifications' ? (
+    <NotificationsPage onBack={() => navigate(currentUser?.role === 'Driver' ? 'driver-dashboard' : currentUser?.role === 'Provider' ? 'provider-dashboard' : currentUser?.role === 'Seller' ? 'seller-dashboard' : 'dashboard')} onNavigate={navigate} />
+  ) : page === 'referrals' ? (
+    <ReferralsPage onBack={() => navigate('dashboard')} onWallet={() => navigate('dashboard')} />
+  ) : page === 'orders-bookings' ? (
+    <OrdersBookingsPage onBack={() => navigate(currentUser?.role === 'Driver' ? 'driver-dashboard' : currentUser?.role === 'Provider' ? 'provider-dashboard' : currentUser?.role === 'Seller' ? 'seller-dashboard' : 'dashboard')} onOpenOrder={() => navigate('orders')} onSupport={() => navigate('support')} onNavigate={navigate} />
+  ) : page === 'orders' ? (
+    <OrdersPage onBack={() => navigate('orders-bookings')} onSupport={() => navigate('support')} />
+  ) : <>
   <main id="top">
    <section className={styles.hero} id="discover"><div className={styles.heroCopy}><span className={styles.eyebrow}>Made for your everyday</span><h1>A world of<br/>possibility.<br/>One local hub.</h1><p>Find the things, people and opportunities that move you forward. All in one trusted Nigerian marketplace.</p><div className={styles.actions}><button className={styles.primary} onClick={()=>goTo('finds')}>Explore KHUB</button><button className={styles.secondary} onClick={()=>openModal('Start selling on KHUB','Create a listing and connect with people looking for what you offer.','Get started')}>Start selling</button></div><small>Lagos · Abuja · Port Harcourt & beyond</small></div>
     <div className={styles.heroVisual}><img src={hero} alt="A Nigerian entrepreneur working from a plant-filled home workspace"/><div className={styles.imageCaption}>Local ambition. Everyday connection. <ArrowUpRight size={15}/></div></div></section>
@@ -126,11 +126,12 @@ if (page === 'account') {
    <section className={styles.section} id="jobs"><div className={styles.sectionHeading}><h2>Find your next opportunity</h2><p>Explore work with clear terms, pay and location.</p></div><div className={styles.jobGrid}><JobCard title="Product designer" company="Cedar Digital · Lagos" type="Full-time · Hybrid" salary="₦450,000–₦650,000 / month" note="Health cover · Portfolio required" onClick={()=>openModal('Product designer','Cedar Digital · Lagos · Full-time, hybrid. Health cover and portfolio required.','Explore job')}/><JobCard title="Operations coordinator" company="Riverline Commerce · Abuja" type="Full-time · On-site" salary="₦250,000–₦350,000 / month" note="Monday–Friday · 2+ years experience" onClick={()=>openModal('Operations coordinator','Riverline Commerce · Abuja · Full-time, on-site. Monday–Friday, 2+ years experience.','View opportunity')}/></div></section>
    <section className={styles.section} id="city"><div className={styles.sectionHeading}><h2>Your city. A little closer.</h2><p>Book a ride or get a parcel moving, with clear upfront estimates.</p></div><div className={styles.cityGrid}><div className={styles.cityCard}><CarFront size={23}/><h3>Get there with confidence</h3><p>Choose your pickup, compare vehicles and see the estimated fare before you request.</p><button className={styles.primary} onClick={()=>openModal('Book a ride','Add your pickup and destination to get started.','Continue to ride')}>Book a ride</button></div><div className={styles.cityCard}><Package size={23}/><h3>Send a little possibility</h3><p>Door-to-door local delivery with driver updates and a trackable timeline.</p><button className={styles.primary} onClick={()=>openModal('Send a parcel','Tell us where the parcel is going and what you need delivered.','Send a parcel')}>Send a parcel</button></div></div></section>
    <section className={styles.section}><div className={styles.sectionHeading}><h2>A marketplace built on clarity</h2><p>Confidence comes from knowing what to expect.</p></div><div className={styles.clarityGrid}>{[{title:'Know who you’re dealing with',text:'Identity checks are labelled. They do not guarantee inventory quality.'},{title:'Keep payment on KHUB',text:'Eligible payments have dispute support. Never share an OTP or pay an unknown personal account.'},{title:'Speak up, stay safe',text:'Report a listing, block a contact or reach support from every transaction.'}].map((item)=><div className={styles.clarityCard} key={item.title}><ShieldCheck size={20}/><h3>{item.title}</h3><p>{item.text}</p></div>)}</div></section>
-   <section className={styles.referral}><div><h2>Better together.<br/>Bring your people to KHUB.</h2><p>Invite friends and earn ₦1,000 when an eligible first order is completed. Terms and reward limits apply.</p><button className={styles.lightButton} onClick={()=>openModal('Invite your people','Share your email to prepare a referral invite for friends and family.','Prepare invite')}>Explore referrals</button><small>For the makers, the movers and everyone building what’s next.</small></div></section>
+   <section className={styles.referral}><div><h2>Better together.<br/>Bring your people to KHUB.</h2><p>Invite friends and earn ₦1,000 when an eligible first order is completed. Terms and reward limits apply.</p><button className={styles.lightButton} onClick={()=>navigate('referrals')}>Explore referrals</button><small>For the makers, the movers and everyone building what’s next.</small></div></section>
   </main>
   <footer className={styles.footer}><div className={styles.footerTop}><div className={styles.footerBrand}><a className={styles.logo} href="#top">KHUB</a><p>Your everyday, connected.</p></div><div><h4>Explore</h4><button onClick={()=>goTo('finds')}>Shop · Rentals · Services</button><button onClick={()=>goTo('jobs')}>Jobs · Rides · Delivery</button></div><div><h4>For business</h4><button onClick={()=>openModal('Sell on KHUB','Reach customers looking for your products and services.','Start selling')}>Sell on KHUB · Offer services</button><button onClick={()=>goTo('jobs')}>Post a job · Drive with us</button></div><div><h4>Here to help</h4><button onClick={()=>openModal('Help centre','Tell us what you need help with and our support team can guide you.','Contact support')}>Help centre · Trust & safety</button><button onClick={()=>openModal('Privacy and terms','Review marketplace privacy, terms and accessibility information.','Continue')}>Privacy · Terms · Accessibility</button></div></div><div className={styles.footerBottom}>© KHUB · Nigeria · English · NGN · All business data shown in this design is illustrative.</div></footer>
   {toast&&<div className={styles.toast}><CheckCircle2 size={17}/>{toast}</div>}
   {modal&&<div className={styles.modalBackdrop} role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setModal(null)}}><section className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="modal-title"><button className={styles.modalClose} onClick={()=>setModal(null)} aria-label="Close dialog"><X size={19}/></button>{submitted?<div className={styles.modalSuccess}><CheckCircle2 size={34}/><h2>Thanks — you’re on your way.</h2><p>This demo has recorded your interaction locally. No information was sent to a server.</p><button className={styles.primary} onClick={()=>setModal(null)}>Done</button></div>:<><span className={styles.tag}>KHUB · Local marketplace</span><h2 id="modal-title">{modal.title}</h2><p>{modal.description}</p><form onSubmit={onSubmit}><label>Your name<input required placeholder="Enter your name"/></label><label>Email or phone<input required placeholder="you@example.com or phone number"/></label><label>More details <textarea placeholder="Share a few details (optional)" rows="3"/></label><button className={styles.primary} type="submit">{modal.action} <ArrowRight size={15}/></button><small>Demo interface only. Submitting will not send your details anywhere.</small></form></>}</section></div>}
+  </>}
  </div>
 }
 function JobCard({title,company,type,salary,note,onClick}){return <article className={styles.jobCard}><h3>{title}</h3><span className={styles.tag}>{type}</span><p>{company}</p><strong>{salary}</strong><small>{note}</small><button className={styles.outlineButton} onClick={onClick}>Explore role <ChevronRight size={14}/></button></article>}
